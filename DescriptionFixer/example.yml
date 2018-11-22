@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: The %s environment VPC and subnets
+Parameters:
+  Identifier:
+    Type: String
+    Description: The unique identifier of the template
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+Transform:
+  - DescriptionFixer

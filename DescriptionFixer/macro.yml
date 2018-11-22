@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CloudFormation Macro for fixing the description of templates"
+Resources:
+  TransformExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ['logs:*']
+                Resource: 'arn:aws:logs:*:*:*'
+  TransformFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+            import traceback
+
+
+            def handler(event, context):
+                macro_response = {
+                    "requestId": event["requestId"],
+                    "status": "success"
+                }
+                # Globals
+                fragment = event['fragment']
+                result = fragment
+                templateParameterValues = event['templateParameterValues']
+
+                identifier = templateParameterValues['Identifier'].upper()
+
+                if '%s' in fragment['Description']:
+                    result['Description'] = fragment['Description'] % identifier
+
+                macro_response['fragment'] = result
+                return macro_response
+
+      Handler: index.handler
+      Runtime: python3.6
+      Role: !GetAtt TransformExecutionRole.Arn
+  TransformFunctionPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt TransformFunction.Arn
+      Principal: 'cloudformation.amazonaws.com'
+  Transform:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: 'DescriptionFixer'
+      Description: Fixes CloudFormation stack descriptions
+      FunctionName: !GetAtt TransformFunction.Arn
