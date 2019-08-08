@@ -1,3 +1,7 @@
 # CloudFormation Macros
 
-Various CloudFormation macros.
+Various CloudFormation macros, usually built for demonstration purposes.
+
+## Contributions
+
+Contributions are welcome.

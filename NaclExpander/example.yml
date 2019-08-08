@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A VPC for testing the functionality of the NaclExpander Macro environment VPC and subnets
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      Tags:
+        - Key: Name
+          Value: NaclExpander-VPC
+
+  SubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Select [0, !Cidr [!GetAtt VPC.CidrBlock, 8, 8]]
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: NaclExpander-Subnet-1
+
+  SubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Select [1, !Cidr [!GetAtt VPC.CidrBlock, 8, 8]]
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+      - Key: Name
+        Value: NaclExpander-Subnet-2
+
+  NaclPublic:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Inbound:
+        - "100,6,allow,0.0.0.0/0,443"
+        - "110,6,allow,0.0.0.0/0,80"
+        - "200,6,deny,'{ \"Fn::GetAtt\" : [ \"VPC\", \"CidrBlock\" ] }',22"
+      Outbound:
+        - "100,6,allow,0.0.0.0/0,443"
+        - "110,-1,allow,10.0.0.0/8,-1"
+        - "150,6,allow,0.0.0.0/0,32768-61000"
+      Association:
+        - SubnetA
+        - SubnetB
+      Tags:
+        - Key: Name
+          Value: NaclExpander-Public-NACL
+
+Transform:
+  - NaclExpander

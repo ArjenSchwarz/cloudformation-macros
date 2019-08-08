@@ -113,3 +113,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# compiled CloudFormation templates
+packaged-macro.yml
