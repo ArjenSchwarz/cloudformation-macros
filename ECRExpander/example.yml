@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ECR Repositories
+Parameters:
+  lifecyclePolicyText:
+    Type: String
+Resources:
+  Repos:
+    Type: IgnoreMe::ECR::Repository
+    Properties:
+      Repositories:
+        - test-repository
+        - second-test-repository
+      LifecyclePolicy:
+        LifecyclePolicyText: !Ref lifecyclePolicyText
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::123456789012:user/Bob"
+                - "arn:aws:iam::123456789012:user/Alice"
+            Action:
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:PutImage"
+              - "ecr:InitiateLayerUpload"
+              - "ecr:UploadLayerPart"
+              - "ecr:CompleteLayerUpload"
+
+Transform:
+  - ECRExpander

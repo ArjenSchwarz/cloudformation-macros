@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CloudFormation Macro for expanding ECR repositories"
+Resources:
+  TransformExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ['logs:*']
+                Resource: 'arn:aws:logs:*:*:*'
+  TransformFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: .
+      Handler: macro.handler
+      Runtime: python3.7
+      Role: !GetAtt TransformExecutionRole.Arn
+  TransformFunctionPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt TransformFunction.Arn
+      Principal: 'cloudformation.amazonaws.com'
+  Transform:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: 'ECRExpander'
+      Description: Expands ECR repositories
+      FunctionName: !GetAtt TransformFunction.Arn
