@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Example for a better policy structure
+Parameters:
+  SSOInstance:
+    Description: The Arn of the SSO Instance
+    Type: String
+Resources:
+  ExampleSet:
+    Type: AWS::SSO::PermissionSet
+    Properties:
+      Name: ExampleSet
+      InstanceArn: !Ref SSOInstance
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: '*'
+            Resource: '*'
+
+Transform:
+  - SSOFixer

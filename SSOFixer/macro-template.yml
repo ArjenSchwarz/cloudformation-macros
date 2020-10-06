@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CloudFormation Macro for fixing the SSO CloudFormation syntax"
+Parameters:
+  BucketName:
+    Description: The name of the bucket containing the SSO lookup table (e.g. mybucket)
+    Type: String
+    Default: ""
+  LookupTablePrefix:
+    Description: The prefix for the lookup table in the provided bucket (e.g. lookuptable.json)
+    Type: String
+    Default: ""
+Conditions:
+  HasLookupTable: !And
+    - !Not [!Equals [!Ref BucketName, ""]]
+    - !Not [!Equals [!Ref LookupTablePrefix, ""]]
+Resources:
+  TransformExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ['logs:*']
+                Resource: 'arn:aws:logs:*:*:*'
+              - !If
+                - HasLookupTable
+                - Effect: Allow
+                  Action: ['s3:GetObject']
+                  Resource: !Sub "arn:aws:s3:::${BucketName}/${LookupTablePrefix}"
+                - !Ref AWS::NoValue
+  TransformFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: .
+      Handler: macro.handler
+      Runtime: python3.7
+      Role: !GetAtt TransformExecutionRole.Arn
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref BucketName
+          LOOKUPTABLE_PREFIX: !Ref LookupTablePrefix
+  TransformFunctionPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt TransformFunction.Arn
+      Principal: 'cloudformation.amazonaws.com'
+  Transform:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: 'SSOFixer'
+      Description: Expands NACL rulesets
+      FunctionName: !GetAtt TransformFunction.Arn

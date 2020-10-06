@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Example for a better policy structure
+Parameters:
+  SSOInstance:
+    Description: The Arn of the SSO Instance
+    Type: String
+  TargetAccount:
+    Description: The ID of the account where we want to deploy
+    Type: String
+  PermissionSetArn:
+    Description: The ARN of the permission set
+    Type: String
+Resources:
+  Assignment:
+    Type: AWS::SSO::Assignment
+    Properties:
+      InstanceArn: !Ref SSOInstance
+      PermissionSetArn: !Ref PermissionSetArn
+      TargetId: !Ref TargetAccount
+      TargetType: 'AWS_ACCOUNT'
+      PrincipalType: 'GROUP'
+      PrincipalName: 'TestGroup'
+Transform:
+  - SSOFixer

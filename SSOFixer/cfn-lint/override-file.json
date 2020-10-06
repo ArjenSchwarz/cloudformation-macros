@@ -1,0 +1,28 @@
+{
+    "ResourceTypes": {
+        "AWS::SSO::PermissionSet": {
+            "Documentation": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sso-permissionset.html",
+            "Properties": {
+                "PolicyDocument": {
+                    "Documentation": "http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-policy.html#cfn-iam-policies-policydocument",
+                    "PrimitiveType": "Json",
+                    "Required": false,
+                    "UpdateType": "Mutable"
+                }
+            }
+        },
+        "AWS::SSO::Assignment": {
+            "Documentation": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sso-permissionset.html",
+            "Properties": {
+                "PrincipalName": {
+                    "PrimitiveType": "String",
+                    "Required": false,
+                    "UpdateType": "Mutable"
+                },
+                "PrincipalId": {
+                    "Required": false
+                }
+            }
+        }
+    }
+}
