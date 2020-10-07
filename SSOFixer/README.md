@@ -52,10 +52,10 @@ The default implementation of the SSO Assignment means you have to use internal 
 
 ## Deployment
 
-As the source code is in a separate file, you will need to package the CloudFormation template first. You can do so with the below command, where you replace `${ARTEFACTS_BUCKET}` with the S3 bucket you wish to use for temporary storing the zipped file.
+As the source code is in a separate file, you will need to package the CloudFormation template first. You can do so with the below command, where you replace `${ARTIFACTS_BUCKET}` with the S3 bucket you wish to use for temporary storing the zipped file.
 
 ```bash
-aws cloudformation package --template-file ./macro-template.yml --s3-bucket ${ARTEFACTS_BUCKET} --output-template-file packaged-macro.yml
+aws cloudformation package --template-file ./macro-template.yml --s3-bucket ${ARTIFACTS_BUCKET} --output-template-file packaged-macro.yml
 ```
 
 After this you can then deploy the packaged-macro.yml CloudFormation template using a regular CloudFormation deployment. From the CLI this would mean:
