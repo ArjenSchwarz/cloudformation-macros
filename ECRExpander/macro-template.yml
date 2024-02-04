@@ -25,7 +25,7 @@ Resources:
     Properties:
       Code: .
       Handler: macro.handler
-      Runtime: python3.7
+      Runtime: python3.12
       Role: !GetAtt TransformExecutionRole.Arn
   TransformFunctionPermissions:
     Type: AWS::Lambda::Permission
